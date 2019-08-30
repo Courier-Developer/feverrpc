@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
             FeverRPC::Server _rpc(threadmanager);
             _rpc.s2c();
         }};
-        FeverRPC::thread_guard g(_thread);
+        thread_guard g(_thread);
 
         thread _thread_1{[]() {
             FeverRPC::Server rpc(threadmanager);
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
             rpc.bind("echo", echo_thread);
             rpc.c2s();
         }};
-        FeverRPC::thread_guard gg(_thread_1);
+        thread_guard gg(_thread_1);
     }
     return 0;
 }

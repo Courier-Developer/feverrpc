@@ -8,7 +8,6 @@
 
 - feverrpc.cpp rpc主要代码
 - lock.cpp 线程管理及通信
-- 
 
 ## For Client Devloper
 
@@ -57,7 +56,7 @@ int main(int argc, char const *argv[]) {
         _rpc.s2c();
     }};
 
-    FeverRPC::thread_guard g(_thread);
+    thread_guard g(_thread);
     
     // 负责Client2Server
     FeverRPC::Client rpc("127.0.0.1");
@@ -113,7 +112,7 @@ int main(int argc, char const *argv[]) {
             FeverRPC::Server _rpc(threadmanager);
             _rpc.s2c();
         }};
-        FeverRPC::thread_guard g(_thread);
+        thread_guard g(_thread);
 
         thread _thread_1{[]() {
             // 用于Client2Server
@@ -125,7 +124,7 @@ int main(int argc, char const *argv[]) {
             rpc.bind("echo", echo_thread);
             rpc.c2s();
         }};
-        FeverRPC::thread_guard gg(_thread_1);
+        thread_guard gg(_thread_1);
     }
     return 0;
 }

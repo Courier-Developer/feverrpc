@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
         _rpc.bind("push", deal_push);
         _rpc.s2c();
     }};
-    FeverRPC::thread_guard g(_thread);
+    thread_guard g(_thread);
     rpc.call<int>("login", Login{username : "uname", password : "pwod"});
     this_thread::sleep_for(chrono::seconds(2000));
     // string ans = rpc.call<string>("repeat", "Yes! ", 5);
