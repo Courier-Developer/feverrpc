@@ -4,10 +4,8 @@
 
 该框架采用的Socket连接均由Server监听，分别负责双方的事件调用。
 
-由于还在开发阶段，因此暂时不做文件分割。
-
-- feverrpc.cpp rpc主要代码
-- lock.cpp 线程管理及通信
+- feverrpc. rpc主要代码
+- threadmanager. 线程管理及通信
 
 ## For Client Devloper
 

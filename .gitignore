@@ -1,7 +1,7 @@
 
 # Created by https://www.gitignore.io/api/c,c++,cmake,visualstudiocode
 # Edit at
-
+bin
 server
 thread-test
 client

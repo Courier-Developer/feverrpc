@@ -1,6 +1,6 @@
 // Client side C/C++ program to demonstrate Socket programming
-#include "feverrpc.cpp"
-#include "utils.cpp"
+#include <feverrpc/feverrpc.hpp>
+#include <feverrpc/utils.hpp>
 #include <string>
 #include <thread>
 using namespace std;

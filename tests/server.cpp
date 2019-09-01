@@ -1,9 +1,9 @@
 // Server side C/C++ program to demonstrate Socket programming
-#include "feverrpc.cpp"
+#include <feverrpc/feverrpc.hpp>
 #include <chrono>
 #include <string>
 #include <thread>
-#include "lock.cpp"
+#include <feverrpc/threadmanager.hpp>
 using namespace std;
 
 ThreadManager threadmanager;

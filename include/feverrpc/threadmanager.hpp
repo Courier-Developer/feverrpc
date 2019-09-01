@@ -1,3 +1,6 @@
+#ifndef FEVERRPC_THREADMENAGER_H_
+#define FEVERRPC_THREADMENAGER_H_
+
 #pragma once
 #include "msgpack.hpp"
 #include <cstdio>
@@ -172,3 +175,5 @@ class thread_guard {
     thread_guard(const thread_guard &) = delete;
     thread_guard &operator=(const thread_guard &) = delete;
 };
+
+#endif // FEVERRPC_THREADMANAGER_H_
