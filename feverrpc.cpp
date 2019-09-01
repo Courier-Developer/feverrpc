@@ -1,3 +1,23 @@
+/*!
+ * \file feverrpc.cpp
+ * \brief 一个基于Socket长连接双向RPC框架，嵌入了登录认证功能。
+ * 
+ * https://github.com/Courier-Developer/feverrpc
+ * 使用TCP/Socket长连接
+ * 双向RPC
+ * 支持任意长度、类型参数绑定
+ * 基于Msgpack，可自定义序列化类型
+ * Socket支持任意大小传输功能（int)
+ * 支持多线程，有多线程调度模块
+ * 服务端线程可相互通信
+ * 嵌入登录功能
+ *
+ * \author 冯开宇
+ * \version 0.1
+ * \date 2019-9-1
+ */
+
+#pragma once
 #include "lock.cpp"
 #include "msgpack.hpp"
 #include "utils.cpp"
@@ -17,23 +37,26 @@
 
 // TODO MORE DOCS
 
-
+/// \brief RPC框架的命名空间
+/// 
+/// 包含RPC本身，socket通讯相关函数以及自定义异常
 namespace FeverRPC {
 
-// Socket一次通信中最大数据发送大小
+/// \brief Socket一次通信中最大数据发送大小
 const int _CHUNK_SIZE = 1024;
 
-// 客户端到服务器通信端口
+/// \brief 客户端到服务器通信端口
 const int _C2S_PORT = 8012;
-// 服务端到客户端通信端口
+
+/// \brief 服务端到客户端通信端口
 const int _S2C_PORT = 8021;
 
-// Socket通讯异常
+/// \brief Socket通讯异常
 class SocketException : public std::exception {
     virtual const char *what() const throw() { return "Socket　Error"; }
 };
 
-// 函数调用异常，说明你没有注册该函数
+/// \brief 函数调用异常，说明你没有注册该函数
 class FunctionCallException : public std::exception {
 
     virtual const char *what() const throw() {
@@ -42,7 +65,13 @@ class FunctionCallException : public std::exception {
 };
 
 
-// 使用Socket发送数据
+/// \brief 使用Socket发送数据
+///
+/// 支持unsigned int大小内的任意大小数据传输，不支持断点续传
+/// \param socket_handler socket句柄
+/// \param data_send_buffer the pointer that point to your data to be sent
+/// \param data_send_size size of data
+/// \return if there is error. 0 is ok.
 int send_data(const int &socket_handler, const char *data_send_buffer,
               int data_send_size) {
     int err = 0;
@@ -50,7 +79,7 @@ int send_data(const int &socket_handler, const char *data_send_buffer,
     // printf("[HANDLER] %d\n", socket_handler);
     // printf("errno: %d", errno);
     // try {
-    err = send(socket_handler, (void *)&data_send_size, sizeof(int), 0);
+    err = send(socket_handler, (void *)&data_send_size, sizeof(unsigned int), 0);
     // printf("[SIZE] %d\n", data_send_size);
     // printf("send err value(should be 4(int)): %d\n", err);
     // printf("errno: %d", errno);
@@ -82,14 +111,17 @@ int send_data(const int &socket_handler, const char *data_send_buffer,
     return err;
 }
 
-// 接收数据
+/// \brief 接收数据
+/// \param socket_handler docket handler
+/// \param data_recv_buffer msgpack::sbuffer used for recive data
+/// \return if there is an error.
 int recv_data(const int &socket_handler, msgpack::sbuffer &data_recv_buffer) {
     int recv_len = 0;
     int err = 0;
     char _buffer[_CHUNK_SIZE + 10] = {};
     puts("\n[RECV_START]");
     // printf("[HANDLER] %d\n", socket_handler);
-    err = read(socket_handler, (void *)&recv_len, sizeof(int));
+    err = read(socket_handler, (void *)&recv_len, sizeof(unsigned int));
     // printf("recv err value: %d\n", err);
     // printf("[SIZE] %d\n", recv_len);
 
