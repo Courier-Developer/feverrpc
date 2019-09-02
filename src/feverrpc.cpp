@@ -167,7 +167,7 @@ Serializer FeverRPC::recv_call_and_send(const int &socket_handler) {
     name_obj.convert(func_name);
 
     // ! execute funciton with args.
-    Serializer ans = call_(func_name, args_obj);
+    Serializer ans = call_chooser(func_name, args_obj);
     // ! 3. buffer -> msgpack::sbuffer.
     Serializer ret;
     ret.buffer.write(ans.buffer.data(), ans.buffer.size());
@@ -175,6 +175,11 @@ Serializer FeverRPC::recv_call_and_send(const int &socket_handler) {
     send_data(socket_handler, ans.buffer.data(), ans.buffer.size());
     printf("[recvcallandsend] buffer.data() %d", ret.buffer.size());
     return ret;
+}
+
+Serializer FeverRPC::call_chooser(std::string &func_name,
+                                  msgpack::object &args_obj) {
+    return call_(func_name, args_obj);
 }
 
 void FeverRPC::print_sbuffer(msgpack::sbuffer &buffer) {
@@ -221,7 +226,6 @@ void Client::s2c() {
     printf("dd%d", _s2c_socket_handler);
     while (1) {
         // equal to recv_call_and_send
-        printf("[recv_call_and_send]");
 
         listen(_s2c_socket_handler);
     }
@@ -347,9 +351,10 @@ void Server::c2s() {
         std::thread _thread{[new_socket_handler, this]() {
             int uid = -1;
             printf("[new thread][c2s] %lld\n", std::this_thread::get_id());
-            puts("waiting for login");
+            puts("waiting for login/register");
+            // 这里同时绑定两个函数 login / register, 可以同时处理登录 / 注册
+            // 两个事件
             Serializer _ans = recv_call_and_send(new_socket_handler);
-            printf("[c2s]_ans.size() %d\n", _ans.buffer.size());
             uid = unpack_ret_val<int>(_ans.buffer);
             if (uid < 0) {
                 // 认证失败,退出
@@ -367,7 +372,10 @@ void Server::c2s() {
                     // 基本的思想是，利用threadManager
                     // 释放另一个线程的资源（socket handler 等）
                     // 然后释放自己的资源
-                    threadManager.unreg(uid);
+                    if (threadManager.online(uid)) {
+                        puts("release thread");
+                        threadManager.unreg(uid);
+                    }
                     puts(e.what());
 
                     break;

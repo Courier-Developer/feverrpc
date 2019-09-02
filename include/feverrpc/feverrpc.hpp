@@ -131,6 +131,7 @@ class FeverRPC {
 
     Serializer call_(std::string name, msgpack::object args_obj);
 
+    Serializer call_chooser(std::string &name, msgpack::object &args_obj);
     // more helper functions.
     int send_and_recv(const int &socket_handler, const char *data_send_buffer,
                       int data_send_size, msgpack::sbuffer &data_recv_buffer);

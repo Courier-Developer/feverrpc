@@ -101,6 +101,8 @@ class ThreadManager {
             print();
             cout << "[TM] 已检测到在线用户，干掉它" << endl;
             unreg(uid);
+            // 一个hack，防止自己注册的进程被别人注销
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
         std::lock_guard<std::mutex> guard(_mtx);
         _status.insert(
@@ -113,6 +115,7 @@ class ThreadManager {
     bool unreg(int uid) {
         std::lock_guard<std::mutex> guard(_mtx);
         if (_status[uid].socket_handler >= 0) {
+   
             printf("[TM] thread [%lld] close socket [%d]",
                    std::this_thread::get_id(), _status[uid].socket_handler);
             // close(_status[uid].socket_handler);
@@ -148,8 +151,8 @@ class ThreadManager {
                                     const ThreadManager &_tm) {
         cout << "{" << endl;
         for (auto elem : _tm._status) {
-            cout << "    " << elem.first << " " << elem.second.thread_id <<"--"<<elem.second.socket_handler
-                 << "\n";
+            cout << "    " << elem.first << " " << elem.second.thread_id << "--"
+                 << elem.second.socket_handler << "\n";
         }
         cout << "}\n";
         return os;
@@ -157,8 +160,8 @@ class ThreadManager {
     void print() {
         cout << "{" << endl;
         for (auto elem : _status) {
-            cout << "    " << elem.first << " " << elem.second.thread_id <<"--"<<elem.second.socket_handler
-                 << "\n";
+            cout << "    " << elem.first << " " << elem.second.thread_id << "--"
+                 << elem.second.socket_handler << "\n";
         }
         cout << "}\n";
     }
