@@ -68,10 +68,23 @@ class UserStatus {
 // 消息队列，采用互斥锁解决竞争问题。
 class ThreadManager {
     map<int, UserStatus> _status;
+    map<std::thread::id, int> _threads;
     std::mutex _mtx;
     static const int COUNT_LIMIT = 30;
 
   public:
+    void reg_thread(int uid) {
+        std::lock_guard<std::mutex> guard(_mtx);
+        _threads[std::this_thread::get_id()] = uid;
+    }
+    int get_uid() {
+        std::lock_guard<std::mutex> guard(_mtx);
+        return _threads[std::this_thread::get_id()];
+    }
+    bool unreg_thread() {
+        std::lock_guard<std::mutex> guard(_mtx);
+        return _threads.erase(std::this_thread::get_id());
+    }
     bool online(int uid) {
         std::lock_guard<std::mutex> guard(_mtx);
         if (_status.count(uid) <= 0) {
@@ -101,13 +114,18 @@ class ThreadManager {
             print();
             cout << "[TM] 已检测到在线用户，干掉它" << endl;
             unreg(uid);
+            {
+                std::lock_guard<std::mutex> guard(_mtx);
+                _status.insert(
+                    std::pair<int, UserStatus>({uid, {tid, socket_handler}}));
+            }
             // 一个hack，防止自己注册的进程被别人注销
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
         std::lock_guard<std::mutex> guard(_mtx);
         _status.insert(
             std::pair<int, UserStatus>({uid, {tid, socket_handler}}));
-        // _status[uid] = UserStatus(tid);
+        // _threads[std::this_thread::get_id()] = uid;
         printf("[TM] register a new thread %lld from uid:%d.\n", tid, uid);
         print();
         return true;
@@ -115,7 +133,7 @@ class ThreadManager {
     bool unreg(int uid) {
         std::lock_guard<std::mutex> guard(_mtx);
         if (_status[uid].socket_handler >= 0) {
-   
+
             printf("[TM] thread [%lld] close socket [%d]",
                    std::this_thread::get_id(), _status[uid].socket_handler);
             // close(_status[uid].socket_handler);

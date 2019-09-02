@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
-
+include_directories(include)
 
 add_executable(feverrpc main.cpp)
 

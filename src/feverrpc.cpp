@@ -361,6 +361,8 @@ void Server::c2s() {
                 close(new_socket_handler);
                 return;
             }
+            // 这以后，被调用函数可以通过TM获取uid
+            threadManager.reg_thread(uid);
             std::cout << "[c2s]认证成功" << std::endl;
             while (1) {
                 try {
