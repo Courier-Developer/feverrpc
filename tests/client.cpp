@@ -3,6 +3,7 @@
 #include <feverrpc/utils.hpp>
 #include <string>
 #include <thread>
+#include <feverrpc/utils.hpp>
 using namespace std;
 
 int sub(int a, int b) { return a - b; }
@@ -28,11 +29,13 @@ int main(int argc, char const *argv[]) {
     }};
     thread_guard g(_thread);
     rpc.call<int>("login", Login{username : "uname", password : "pwod"});
+    vector<char> data = rpc.call<std::vector<char>>("read_file", "tests/client.cpp");
+    save_file("bin/client.txt",data);
     this_thread::sleep_for(chrono::seconds(2000));
-    // string ans = rpc.call<string>("repeat", "Yes! ", 5);
-    // cout << ans << endl; // Yes! Yes! Yes! Yes! Yes!
-    // int ans2 = rpc.call<int>("echo");
-    // cout <<"login result: "<< ans2 << endl; // Yes! Yes! Yes! Yes! Yes!
+    string ans = rpc.call<string>("repeat", "Yes! ", 5);
+    cout << ans << endl; // Yes! Yes! Yes! Yes! Yes!
+    int ans2 = rpc.call<int>("echo");
+    cout <<"login result: "<< ans2 << endl; // Yes! Yes! Yes! Yes! Yes!
 
     return 0;
 }

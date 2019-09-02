@@ -37,6 +37,7 @@ int main(int argc, char const *argv[]) {
             rpc.bind("repeat", repeat);
             rpc.bind("login", login);
             rpc.bind("echo", echo_thread);
+            rpc.bind("read_file",read_file);
             rpc.c2s();
         }};
         thread_guard gg(_thread_1);
