@@ -53,7 +53,7 @@ const int _S2C_PORT = 8021;
 
 /// \brief Socket通讯异常
 class SocketException : public std::exception {
-    virtual const char *what() const throw() { return "Socket　Error"; }
+    virtual const char *what() const throw() { return "Connection Failed / Socket Error"; }
 };
 
 /// \brief 函数调用异常，说明你没有注册该函数
@@ -138,6 +138,8 @@ class FeverRPC {
     template <typename Ret> Ret unpack_ret_val(msgpack::sbuffer &buffer);
 
     Serializer recv_call_and_send(const int &socket_handler);
+
+    void print_sbuffer(msgpack::sbuffer &buffer);
 };
 
 class Client : public FeverRPC {
@@ -251,6 +253,8 @@ template <typename Ret> Ret Client::socket_call(msgpack::sbuffer &buffer) {
     }
     // socket_call_(socket_handler, buffer.data(), buffer.size(), buff);
     msgpack::sbuffer recv_buff;
+    printf("[send_and_recv]");
+    print_sbuffer(buffer);
     send_and_recv(_c2s_socket_handler, buffer.data(), buffer.size(), recv_buff);
     // deserializes these objects using msgpack::unpacker.
     return unpack_ret_val<Ret>(recv_buff);

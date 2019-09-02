@@ -72,7 +72,7 @@ int main(int argc, char const *argv[]) {
 ```
 ### 退出时
 
-优先退出c2s的线程，如果收到了`已在异地登录`的通知，也需自行退出c2s的线程。
+首先，客户端会收到“异地登录”的通知，然后会抛出异常。
 
 
 ## For Server Developer
