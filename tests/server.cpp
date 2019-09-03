@@ -1,9 +1,9 @@
 // Server side C/C++ program to demonstrate Socket programming
-#include <feverrpc/feverrpc.hpp>
 #include <chrono>
+#include <feverrpc/feverrpc-server.hpp>
+#include <feverrpc/threadmanager.hpp>
 #include <string>
 #include <thread>
-#include <feverrpc/threadmanager.hpp>
 using namespace std;
 
 ThreadManager threadmanager;
@@ -23,7 +23,6 @@ string repeat(string text, int times) {
     return ret;
 }
 
-
 int main(int argc, char const *argv[]) {
     while (1) {
         thread _thread{[]() {
@@ -37,7 +36,7 @@ int main(int argc, char const *argv[]) {
             rpc.bind("repeat", repeat);
             rpc.bind("login", login);
             rpc.bind("echo", echo_thread);
-            rpc.bind("read_file",read_file);
+            rpc.bind("read_file", read_file);
             rpc.c2s();
         }};
         thread_guard gg(_thread_1);

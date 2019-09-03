@@ -1,17 +1,12 @@
 // Client side C/C++ program to demonstrate Socket programming
-#include <feverrpc/feverrpc.hpp>
-#include <feverrpc/utils.hpp>
+#include <feverrpc/feverrpc-client.hpp>
+#include <feverrpc/utils.hpp> // 你也可以选择不include，自己实现
+#include <feverrpc/threadmanager.hpp> // 不需要include
 #include <string>
 #include <thread>
-#include <feverrpc/utils.hpp>
 using namespace std;
 
 int sub(int a, int b) { return a - b; }
-
-int deal_push(push::Push p) {
-    cout << p << endl;
-    return 2;
-}
 
 Login ret_login_info() {
     return Login{username : "example", password : "password"};
@@ -24,7 +19,6 @@ int main(int argc, char const *argv[]) {
         FeverRPC::Client _rpc("127.0.0.1");
         _rpc.bind("sub", sub);
         _rpc.bind("login", ret_login_info);
-        _rpc.bind("push", deal_push);
         _rpc.s2c();
     }};
     thread_guard g(_thread);

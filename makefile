@@ -14,10 +14,10 @@ clean:
 	-rm *.o
 	-rm -r bin
 
-server:server.o feverrpc.o threadmanager.o utils.o
+server:server.o feverrpc.o threadmanager.o utils.o feverrpc-server.o
 	g++ $^ -o bin/server -pthread 
 
-client:client.o feverrpc.o threadmanager.o utils.o
+client:client.o feverrpc.o threadmanager.o utils.o feverrpc-client.o
 	g++ $^ -o bin/client -pthread
 
 bin:

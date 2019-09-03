@@ -23,8 +23,7 @@
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <feverrpc/threadmanager.hpp>
-#include <feverrpc/utils.hpp>
+
 #include <functional>
 #include <iostream>
 #include <map>
@@ -53,7 +52,9 @@ const int _S2C_PORT = 8021;
 
 /// \brief Socket通讯异常
 class SocketException : public std::exception {
-    virtual const char *what() const throw() { return "Connection Failed / Socket Error"; }
+    virtual const char *what() const throw() {
+        return "Connection Failed / Socket Error";
+    }
 };
 
 /// \brief 函数调用异常，说明你没有注册该函数
@@ -143,39 +144,6 @@ class FeverRPC {
     void print_sbuffer(msgpack::sbuffer &buffer);
 };
 
-class Client : public FeverRPC {
-  private:
-    int _c2s_socket_handler;
-    int _s2c_socket_handler;
-
-  public:
-    Client(const char *host);
-    ~Client();
-    // client
-    void s2c();
-    template <typename Ret, typename... Args>
-    Ret call(std::string name, Args... args);
-    // client
-    template <typename Ret> Ret socket_call(msgpack::sbuffer &buffer);
-    void listen(const int &_s2c_socket_handler);
-};
-
-class Server : public FeverRPC {
-    ThreadManager &threadManager;
-
-  public:
-    Server(ThreadManager &threadManager);
-    ~Server();
-    void s2c();
-    void c2s();
-
-  private:
-    template <typename Ret, typename... Args>
-    Ret note(const int socket_handler, std::string name, Args... args);
-    template <typename Ret>
-    Ret note_socket_call(const int socket_handler, msgpack::sbuffer &buffer);
-};
-
 /////////////////////////////////////////////////////////////
 //
 /// SOME DEFINITIONS CANNOT TO BE DEFINED IN ANNOTHER FILE
@@ -228,57 +196,6 @@ template <typename Ret> Ret FeverRPC::unpack_ret_val(msgpack::sbuffer &buffer) {
     Ret ret;
     obj.convert(ret);
     return ret;
-}
-
-// FeverRPC::Client
-
-template <typename Ret, typename... Args>
-Ret Client::call(std::string name, Args... args) {
-    // auto args_tuple = std::make_tuple(args...);
-
-    // Serializer ds;
-    // ds << name;
-
-    msgpack::sbuffer buffer;
-
-    msgpack::packer<msgpack::sbuffer> pk(&buffer);
-    pk.pack(name);
-    pk.pack(std::make_tuple(args...));
-
-    return socket_call<Ret>(buffer);
-}
-
-template <typename Ret> Ret Client::socket_call(msgpack::sbuffer &buffer) {
-    if (_c2s_socket_handler < 0) {
-        connect_socket(_HOST, _C2S_PORT, _c2s_socket_handler);
-    }
-    // socket_call_(socket_handler, buffer.data(), buffer.size(), buff);
-    msgpack::sbuffer recv_buff;
-    printf("[send_and_recv]");
-    print_sbuffer(buffer);
-    send_and_recv(_c2s_socket_handler, buffer.data(), buffer.size(), recv_buff);
-    // deserializes these objects using msgpack::unpacker.
-    return unpack_ret_val<Ret>(recv_buff);
-}
-
-// FeverRPC::Server
-
-template <typename Ret, typename... Args>
-Ret Server::note(const int socket_handler, std::string name, Args... args) {
-    msgpack::sbuffer buffer;
-    msgpack::packer<msgpack::sbuffer> pk(&buffer);
-    pk.pack(name);
-    pk.pack(std::make_tuple(args...));
-    return note_socket_call<Ret>(socket_handler, buffer);
-}
-
-template <typename Ret>
-Ret Server::note_socket_call(const int socket_handler,
-                             msgpack::sbuffer &buffer) {
-    send_data(socket_handler, buffer.data(), buffer.size());
-    msgpack::sbuffer recv_buff;
-    recv_data(socket_handler, recv_buff);
-    return unpack_ret_val<Ret>(recv_buff);
 }
 
 }; // namespace FeverRPC
