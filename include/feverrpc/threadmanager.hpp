@@ -7,7 +7,6 @@
 #include <iostream>
 #include <map>
 #include <mutex>
-#include <pqxx/pqxx>
 #include <queue>
 #include <string>
 #include <thread>

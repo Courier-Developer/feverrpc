@@ -22,3 +22,6 @@ client:client.o feverrpc.o threadmanager.o utils.o
 
 bin:
 	mkdir bin
+
+copy:
+	bash scripts/copy.sh
